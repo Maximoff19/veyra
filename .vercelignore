@@ -1,0 +1,7 @@
+node_modules
+dist
+.env*
+.playwright-mcp
+src/**/*.test.ts
+src/**/*.test.tsx
+*.jpg
