@@ -24,7 +24,7 @@ export function Header({ heroOnHome = false }: { heroOnHome?: boolean }) {
       <Link className="wordmark" to="/" aria-label="Veyra, inicio">veyra<span className="brand-dot" /></Link>
       <button className="menu-toggle" aria-expanded={menuOpen} aria-controls="main-navigation" aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <XIcon size={23} /> : <ListIcon size={23} />}</button>
       <nav id="main-navigation" className={menuOpen ? 'main-nav open' : 'main-nav'} aria-label="Navegación principal">
-        <NavLink to="/" end>Inicio</NavLink><NavLink to="/paquetes">Paquetes</NavLink><Link to="/#experiencias" onClick={() => setMenuOpen(false)}>Experiencias</Link><Link to="/#nosotros" onClick={() => setMenuOpen(false)}>Nosotros</Link>
+        <NavLink to="/" end>Inicio</NavLink><NavLink to="/paquetes">Paquetes</NavLink><Link to="/#experiencias" onClick={() => setMenuOpen(false)}>Experienciassssss</Link><Link to="/#nosotros" onClick={() => setMenuOpen(false)}>Nosotros</Link>
         {session && <NavLink to="/reservas">Mis reservas</NavLink>}
         {session && <NavLink to="/perfil">Mi perfil</NavLink>}
         {session?.user.role === 'administrador' && <NavLink to="/admin">Administración</NavLink>}
