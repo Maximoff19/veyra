@@ -1,4 +1,4 @@
-# Veyra frontend + / 
+# Veyra frontend + /  HOLA
 
 React, TypeScript and Vite tourism-package frontend connected to the verified API at `http://20.106.154.149/api`.
 
