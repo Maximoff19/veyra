@@ -21,7 +21,7 @@ export function HeroSection() {
   return <section className="hero" aria-labelledby="hero-heading">
       <img className="hero-image" src={photos.hero} alt="Cumbres alpinas entre nubes bajo un cielo azul" width="2400" height="1600" fetchPriority="high" />
       <div className="hero-scrim" />
-      <div className="hero-title" aria-hidden="true">Veyra</div>
+      <div className="hero-title" aria-hidden="true">Robert</div>
       <div className="hero-bottom"><div className="hero-copy"><span className="hero-eyebrow"><span /> VIAJA MÁS ALLÁ DE LO HABITUAL</span><h1 id="hero-heading">El mundo,<br />a tu manera.</h1><p>Paquetes turísticos para salir de la rutina<br className="desktop-break" /> y volver con algo que contar.</p><ActionLink to="/paquetes" className="button-white">Explorar paquetes</ActionLink></div>
         <Link to="/#experiencias" className="hero-postcard"><div className="postcard-heading"><span>Menos rutina.<br /><strong>Más momentos así.</strong></span><ArrowUpRightIcon aria-hidden="true" /></div><img src={photos.hiker} alt="Viajeros recorriendo un sendero de montaña" width="450" height="300" /><span className="postcard-caption"><span>Encuentra tu próxima aventura</span><CompassIcon size={18} aria-hidden="true" /></span></Link>
       </div>
