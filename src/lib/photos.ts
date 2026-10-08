@@ -1,6 +1,8 @@
 // Cambia aquí las fotografías editoriales del inicio y del formulario de acceso.
 // Estas imágenes son inspiración, no inventario reservable; las fotos de paquetes llegan del servidor.
+// Genera URLs de Unsplash con formato automático, recorte, ancho solicitado y calidad 85.
 const image = (id: string, width: number) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=85`;
+// Centraliza los recursos visuales; la imagen principal pide mayor ancho que las tarjetas.
 export const photos = {
   hero: image('photo-1464822759023-fed622ff2c3b', 2400),
   hiker: image('photo-1551632811-561732d1e306', 1000),
@@ -11,6 +13,7 @@ export const photos = {
   beach: image('photo-1519046904884-53103b34b206', 1000),
 };
 // Cambia aquí nombres, descripciones y búsquedas de las tarjetas de destinos de inspiración.
+// search es el término que la tarjeta usa para buscar paquetes reales, no un ID de paquete.
 export const inspirations = [
   { name: 'Santorini', region: 'Grecia · Islas del Egeo', image: photos.santorini, description: 'El Mediterráneo, sin prisa.', search: 'Santorini' },
   { name: 'Bali', region: 'Indonesia · Sudeste asiático', image: photos.bali, description: 'Un encuentro con lo extraordinario.', search: 'Bali' },

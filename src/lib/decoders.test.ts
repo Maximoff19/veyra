@@ -1,8 +1,10 @@
 // Pruebas del contrato de datos: formatos, precios, imágenes, permisos y pagos de demostración.
+// Usan respuestas locales para comprobar el mapeo de JSON al dominio, sin consultar al backend.
 import { describe, expect, test } from 'bun:test';
 import { decodeDemoPayment, decodeItineraryDay, decodePackage, decodePage, decodeReservation, decodeReservationStatus, decodeReservationSummary, decodeReview, decodeSession, decodeUser } from './decoders';
 import { canCancel, reservationPayload } from './domain';
 
+// Los fixtures reproducen campos planos del contrato, textos decimales y valores opcionales null.
 const packageResponse = {
   id_paquete: 37, id_categoria: 9, id_hotel: 43,
   titulo: 'Tour package', descripcion: null, precio: '367.50', stock_cupos: 11,
@@ -37,6 +39,7 @@ describe('Verified Swagger decoders', () => {
     expect(pkg.imageLicenseUrl).toBe('https://creativecommons.org/licenses/by/4.0/');
   });
   test('rejects unsafe image and attribution URLs without breaking the catalog', () => {
+    // Cada URL insegura se omite por separado; los demás datos del paquete siguen siendo utilizables.
     for (const url of ['javascript:alert(1)', 'data:image/svg+xml,content', 'http://example.com/photo',
       'https://user:password@example.com/photo', '/relative.jpg', 'invalid', null]) {
       const pkg = decodePackage({ ...packageResponse, imagen_url: url, imagen_fuente: url, imagen_licencia_url: url });
@@ -54,9 +57,11 @@ describe('Verified Swagger decoders', () => {
     expect(decodeSession({ token: 'test-token', usuario: userResponse }).user.id).toBe(10);
   });
   test('accepts summary-only reservation lists without requiring items or payments', () => {
+    // El listado usa un decodificador de resumen, distinto del que exige el detalle completo.
     expect(decodePage([summary], decodeReservationSummary).items).toEqual([{ id: 20, status: 'pendiente', total: 735 }]);
   });
   test('accepts creation response and never assumes missing payments means no payments', () => {
+    // Sin el campo pagos, la ausencia de pagos no está confirmada y cancelar debe quedar deshabilitado.
     const reservation = decodeReservation({ ...summary, items: [item] });
     expect(reservation.items[0].passengers).toBe(2);
     expect(reservation.items[0].subtotal).toBe(735);
@@ -73,6 +78,7 @@ describe('Verified Swagger decoders', () => {
     expect(decodeReservationStatus({ id_reserva: 20, estado_reserva: 'cancelada' })).toEqual({ id: 20, status: 'cancelada' });
   });
   test('keeps unknown reservation subtotals unknown instead of estimating them', () => {
+    // No reconstruye subtotales con precios actuales: conserva null y rechaza importes negativos.
     const { subtotal, ...withoutSubtotal } = item;
     expect(decodeReservation({ ...summary, items: [withoutSubtotal], pagos: [] }).items[0].subtotal).toBeNull();
     expect(() => decodeReservation({ ...summary, items: [{ ...item, subtotal: '-2' }], pagos: [] })).toThrow();
@@ -84,6 +90,7 @@ describe('Verified Swagger decoders', () => {
     expect(decodeDemoPayment({ ...payment, simulado: true }).status).toBe('aprobado_demo');
   });
   test('rejects payment responses that do not confirm a simulation', () => {
+    // El indicador simulado por sí solo no basta: método y estado también deben confirmar el modo demo.
     expect(() => decodeDemoPayment(payment)).toThrow();
     expect(() => decodeDemoPayment({ ...payment, simulado: true, metodo_pago: 'card' })).toThrow();
   });
@@ -97,6 +104,7 @@ describe('Verified Swagger decoders', () => {
     expect(() => decodePackage({ ...packageResponse, precio: 'invalid' })).toThrow();
   });
   test('sends only server-authorized booking fields', () => {
+    // El cliente envía IDs y pasajeros; el backend es responsable de calcular precios, total y estado.
     expect(reservationPayload([{ id_paquete: 37, cantidad_pasajeros: 2 }])).toEqual({ items: [{ id_paquete: 37, cantidad_pasajeros: 2 }] });
   });
 });

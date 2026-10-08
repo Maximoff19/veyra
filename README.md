@@ -13,6 +13,8 @@ Open `http://localhost:5173`. The app defaults to `/api`; Vite proxies this path
 
 ## Connected flows
 
+For request examples, see [the curl API reference](CURL_API.md). It covers frontend-known operations and flags routes whose request contracts could not be verified.
+
 - Package catalog with search, category/hotel filters, availability and pagination.
 - Package details, associated hotel/category, separate itineraries and public reviews.
 - Registration, login, `/auth/me`, profile updates and server-validated session restoration.
