@@ -38,6 +38,25 @@ describe('API client transport', () => {
     expect(fetchSpy.mock.calls[0][1]?.method).toBe('PUT');
     expect(await client.apiRequest('deleteReview', decode, { method: 'DELETE', params: { id: '7' } })).toBeNull();
   });
+  test('deletes a package with admin credentials and accepts an empty 204 response', async () => {
+    fetchSpy = spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 204 }));
+    const client = createApiClient('/api');
+    expect(client.hasCapability('deletePackage')).toBe(true);
+    await client.apiRequest('deletePackage', () => undefined, { method: 'DELETE', token: 'admin-test-token', params: { id: '42' } });
+    const [url, options] = fetchSpy.mock.calls[0];
+    expect(String(url)).toBe('http://localhost/api/paquetes/42');
+    expect(options?.method).toBe('DELETE');
+    expect(options?.body).toBeUndefined();
+    expect(new Headers(options?.headers).get('Authorization')).toBe('Bearer admin-test-token');
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+  test('preserves the reservation-protection conflict and does not retry deletion', async () => {
+    fetchSpy = spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ error: 'This package has reservations.' }, { status: 409 }));
+    await expect(createApiClient('/api').apiRequest('deletePackage', decode, {
+      method: 'DELETE', token: 'admin-test-token', params: { id: '42' },
+    })).rejects.toMatchObject({ status: 409, message: 'This package has reservations.' });
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
   test('preserves backend conflict messages rather than assuming a stock conflict', async () => {
     fetchSpy = spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ error: 'Email already registered.' }, { status: 409 }));
     await expect(createApiClient('/api').apiRequest('register', decode)).rejects.toThrow('Email already registered.');

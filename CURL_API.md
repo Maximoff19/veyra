@@ -643,7 +643,7 @@ curl --fail-with-body --silent --show-error --include --request DELETE "http://2
 
 ### Delete a package — also deletes its itineraries and reviews
 
-**Destructive:** Swagger documents cascading deletion of itineraries and reviews. A package with reservations is not eligible for deletion. Do not assume cancelling a reservation removes its historical details.
+**Destructive:** The backend transaction deletes the package's itineraries and reviews before deleting the package. Live MySQL foreign keys use `NO ACTION`, so the application performs the dependent cleanup explicitly. A package with reservations is not eligible for deletion and returns HTTP 409, even after those reservations are cancelled. Do not assume cancelling a reservation removes its historical details.
 
 ```bash
 curl --fail-with-body --silent --show-error --include --request DELETE "http://20.106.154.149/api/paquetes/$PACKAGE_ID" \

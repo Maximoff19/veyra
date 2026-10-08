@@ -10,7 +10,7 @@ export const ENDPOINT = {
   REVIEWS: 'reviews', CREATE_REVIEW: 'createReview', EDIT_REVIEW: 'editReview', DELETE_REVIEW: 'deleteReview',
   DEMO_PAYMENT: 'demoPayment',
   UPDATE_PROFILE: 'updateProfile', CREATE_CATEGORY: 'createCategory', CREATE_HOTEL: 'createHotel',
-  CREATE_PACKAGE: 'createPackage', CREATE_ITINERARY: 'createItinerary', ADJUST_CAPACITY: 'adjustCapacity',
+  CREATE_PACKAGE: 'createPackage', DELETE_PACKAGE: 'deletePackage', CREATE_ITINERARY: 'createItinerary', ADJUST_CAPACITY: 'adjustCapacity',
 } as const;
 // Deriva las claves admitidas de las constantes para detectar endpoints mal escritos al compilar.
 export type Endpoint = typeof ENDPOINT[keyof typeof ENDPOINT];
@@ -28,6 +28,6 @@ export const apiContract: { verified: boolean; endpoints: Record<Endpoint, strin
     reviews: '/paquetes/:packageId/resenas', createReview: '/paquetes/:packageId/resenas', editReview: '/resenas/:id', deleteReview: '/resenas/:id',
     // Compartir una ruta no implica compartir la operación: cada llamada indica su método HTTP.
     demoPayment: '/reservas/:id/pagos', updateProfile: '/usuarios/:id', createCategory: '/categorias', createHotel: '/hoteles', createPackage: '/paquetes',
-    createItinerary: '/paquetes/:packageId/itinerario', adjustCapacity: '/paquetes/:packageId/cupos',
+    deletePackage: '/paquetes/:id', createItinerary: '/paquetes/:packageId/itinerario', adjustCapacity: '/paquetes/:packageId/cupos',
   },
 };
