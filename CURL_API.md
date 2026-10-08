@@ -21,18 +21,9 @@ Use these commands to call the backend API that reads and writes database record
 
 ## 1. Configure your terminal
 
-Commands use Bash-compatible syntax and require curl. They also work in zsh. Run `bun run dev` in another terminal if you choose the local Vite proxy.
+Commands use Bash-compatible syntax and require curl. They also work in zsh. Every curl below contains the real backend URL, `http://20.106.154.149/api`; no base-URL variable or local frontend is required. Only tokens and resource IDs need to be set.
 
 ```bash
-# Default: public reads against the verified backend.
-API_BASE_URL='http://20.106.154.149/api'
-
-# Alternative: the local frontend proxy (requires bun run dev).
-# API_BASE_URL='http://localhost:5173/api'
-
-# For a secured test API, replace the base with its trusted HTTPS URL.
-# Do not append a trailing slash.
-
 # Copy the token returned by a successful test login or registration.
 TOKEN='REPLACE_WITH_TEST_USER_TOKEN'
 ADMIN_TOKEN='REPLACE_WITH_AUTHORIZED_TEST_ADMIN_TOKEN'
@@ -59,13 +50,13 @@ If HTTPS is unavailable, an authorized SSH tunnel can protect traffic from your 
 ssh -N -L 127.0.0.1:8080:127.0.0.1:80 YOUR_SSH_USER@20.106.154.149
 ```
 
-Then use `API_BASE_URL='http://127.0.0.1:8080/api'` in your curl terminal. This assumes the backend is reachable on the server's loopback port 80; verify `/health` through the tunnel first. Do not put an SSH password in this document or command line. A plain Vite proxy is **not** an encrypted tunnel.
+To use the tunnel, replace `http://20.106.154.149/api` with `http://127.0.0.1:8080/api` in the curl you run. The literal public URLs below do not automatically use the tunnel. This assumes the backend is reachable on the server's loopback port 80; verify `/health` through the tunnel first. Alternatively, replace the public HTTP base with your trusted HTTPS test API URL. Do not put an SSH password in this document or command line. A plain Vite proxy is **not** an encrypted tunnel.
 
 All resource IDs in Swagger are positive integers up to 2,147,483,647. Before writes, replace `CATEGORY_ID`, `HOTEL_ID` and `PACKAGE_ID` with IDs of **disposable records you created**, not the public-read defaults above.
 
 ## 2. Operation index
 
-Paths below are relative to `API_BASE_URL`, which already includes `/api`.
+Paths below are relative to `http://20.106.154.149/api`. The executable examples include this full base URL.
 
 | Method | Path | Access documented by Swagger | Effect |
 | --- | --- | --- | --- |
@@ -116,7 +107,7 @@ Paths below are relative to `API_BASE_URL`, which already includes `/api`.
 
 ```bash
 curl --fail-with-body --silent --show-error --connect-timeout 5 --max-time 15 \
-  "$API_BASE_URL/health" \
+  "http://20.106.154.149/api/health" \
   --header 'Accept: application/json'
 ```
 
@@ -125,7 +116,7 @@ Verified result: HTTP 200 with `estado: "ok"` and `base_datos: "conectada"`. The
 ### List packages
 
 ```bash
-curl --fail-with-body --silent --show-error --get "$API_BASE_URL/paquetes" \
+curl --fail-with-body --silent --show-error --get "http://20.106.154.149/api/paquetes" \
   --header 'Accept: application/json' \
   --data-urlencode 'limit=12' \
   --data-urlencode 'offset=0'
@@ -136,7 +127,7 @@ curl --fail-with-body --silent --show-error --get "$API_BASE_URL/paquetes" \
 Remove filters you do not need. `--data-urlencode` handles spaces and other special characters in search text.
 
 ```bash
-curl --fail-with-body --silent --show-error --get "$API_BASE_URL/paquetes" \
+curl --fail-with-body --silent --show-error --get "http://20.106.154.149/api/paquetes" \
   --header 'Accept: application/json' \
   --data-urlencode 'q=Cusco' \
   --data-urlencode "id_categoria=$CATEGORY_ID" \
@@ -162,35 +153,35 @@ An empty array is a valid response. For example, package 40 started before the l
 ### Read a package
 
 ```bash
-curl --fail-with-body --silent --show-error "$API_BASE_URL/paquetes/$PACKAGE_ID" \
+curl --fail-with-body --silent --show-error "http://20.106.154.149/api/paquetes/$PACKAGE_ID" \
   --header 'Accept: application/json'
 ```
 
 ### List categories
 
 ```bash
-curl --fail-with-body --silent --show-error "$API_BASE_URL/categorias" \
+curl --fail-with-body --silent --show-error "http://20.106.154.149/api/categorias" \
   --header 'Accept: application/json'
 ```
 
 ### List hotels
 
 ```bash
-curl --fail-with-body --silent --show-error "$API_BASE_URL/hoteles" \
+curl --fail-with-body --silent --show-error "http://20.106.154.149/api/hoteles" \
   --header 'Accept: application/json'
 ```
 
 ### Read a package itinerary
 
 ```bash
-curl --fail-with-body --silent --show-error "$API_BASE_URL/paquetes/$PACKAGE_ID/itinerario" \
+curl --fail-with-body --silent --show-error "http://20.106.154.149/api/paquetes/$PACKAGE_ID/itinerario" \
   --header 'Accept: application/json'
 ```
 
 ### Read package reviews
 
 ```bash
-curl --fail-with-body --silent --show-error "$API_BASE_URL/paquetes/$PACKAGE_ID/resenas" \
+curl --fail-with-body --silent --show-error "http://20.106.154.149/api/paquetes/$PACKAGE_ID/resenas" \
   --header 'Accept: application/json'
 ```
 
@@ -199,7 +190,7 @@ curl --fail-with-body --silent --show-error "$API_BASE_URL/paquetes/$PACKAGE_ID/
 ### Register a fictional test user — creates an account
 
 ```bash
-curl --fail-with-body --silent --show-error --request POST "$API_BASE_URL/auth/registro" \
+curl --fail-with-body --silent --show-error --request POST "http://20.106.154.149/api/auth/registro" \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --data-binary '{"nombre":"Test Traveler","email":"traveler@example.com","password":"Fictional-Test-Password-2026","telefono":"+10000000000"}'
@@ -210,7 +201,7 @@ curl --fail-with-body --silent --show-error --request POST "$API_BASE_URL/auth/r
 ### Log in with the test account
 
 ```bash
-curl --fail-with-body --silent --show-error --request POST "$API_BASE_URL/auth/login" \
+curl --fail-with-body --silent --show-error --request POST "http://20.106.154.149/api/auth/login" \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --data-binary '{"email":"traveler@example.com","password":"Fictional-Test-Password-2026"}'
@@ -221,7 +212,7 @@ The session decoder expects a `token` and `usuario` in successful authentication
 ### Read the authenticated user
 
 ```bash
-curl --fail-with-body --silent --show-error "$API_BASE_URL/auth/me" \
+curl --fail-with-body --silent --show-error "http://20.106.154.149/api/auth/me" \
   --header 'Accept: application/json' \
   --header "Authorization: Bearer $TOKEN"
 ```
@@ -231,7 +222,7 @@ Use the returned `id_usuario` as `USER_ID` when updating your own profile.
 ### Update profile — changes personal fields
 
 ```bash
-curl --fail-with-body --silent --show-error --request PATCH "$API_BASE_URL/usuarios/$USER_ID" \
+curl --fail-with-body --silent --show-error --request PATCH "http://20.106.154.149/api/usuarios/$USER_ID" \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --header "Authorization: Bearer $TOKEN" \
@@ -243,7 +234,7 @@ Send only changed fields. The frontend allows `nombre`, `email` and `telefono`; 
 To remove the phone number:
 
 ```bash
-curl --fail-with-body --silent --show-error --request PATCH "$API_BASE_URL/usuarios/$USER_ID" \
+curl --fail-with-body --silent --show-error --request PATCH "http://20.106.154.149/api/usuarios/$USER_ID" \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --header "Authorization: Bearer $TOKEN" \
@@ -257,7 +248,7 @@ There is no logout endpoint declared by this frontend. Its logout clears the loc
 ### Create a reservation — can consume available spots
 
 ```bash
-curl --fail-with-body --silent --show-error --request POST "$API_BASE_URL/reservas" \
+curl --fail-with-body --silent --show-error --request POST "http://20.106.154.149/api/reservas" \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --header "Authorization: Bearer $TOKEN" \
@@ -277,7 +268,7 @@ Swagger states that pending reservations do not expire automatically: their spot
 ### List reservations
 
 ```bash
-curl --fail-with-body --silent --show-error --get "$API_BASE_URL/reservas" \
+curl --fail-with-body --silent --show-error --get "http://20.106.154.149/api/reservas" \
   --header 'Accept: application/json' \
   --header "Authorization: Bearer $TOKEN" \
   --data-urlencode 'limit=12' \
@@ -289,7 +280,7 @@ The frontend uses a summary decoder for this list. It does not assume that list 
 ### Read reservation details and recorded payments
 
 ```bash
-curl --fail-with-body --silent --show-error "$API_BASE_URL/reservas/$RESERVATION_ID" \
+curl --fail-with-body --silent --show-error "http://20.106.154.149/api/reservas/$RESERVATION_ID" \
   --header 'Accept: application/json' \
   --header "Authorization: Bearer $TOKEN"
 ```
@@ -299,7 +290,7 @@ The detail decoder reads `items` and `pagos`. A missing `pagos` field means paym
 ### Cancel a reservation — changes reservation state
 
 ```bash
-curl --fail-with-body --silent --show-error --request PATCH "$API_BASE_URL/reservas/$RESERVATION_ID/cancelar" \
+curl --fail-with-body --silent --show-error --request PATCH "http://20.106.154.149/api/reservas/$RESERVATION_ID/cancelar" \
   --header 'Accept: application/json' \
   --header "Authorization: Bearer $TOKEN"
 ```
@@ -311,7 +302,7 @@ The frontend sends no JSON body. It only enables this action when the reservatio
 ### Create a review — writes a record
 
 ```bash
-curl --fail-with-body --silent --show-error --request POST "$API_BASE_URL/paquetes/$PACKAGE_ID/resenas" \
+curl --fail-with-body --silent --show-error --request POST "http://20.106.154.149/api/paquetes/$PACKAGE_ID/resenas" \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --header "Authorization: Bearer $TOKEN" \
@@ -323,7 +314,7 @@ Use an integer rating from 1 to 5. According to Swagger, login is required, prio
 ### Edit a review — changes a record
 
 ```bash
-curl --fail-with-body --silent --show-error --request PUT "$API_BASE_URL/resenas/$REVIEW_ID" \
+curl --fail-with-body --silent --show-error --request PUT "http://20.106.154.149/api/resenas/$REVIEW_ID" \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --header "Authorization: Bearer $TOKEN" \
@@ -335,7 +326,7 @@ The frontend uses **PUT**, not PATCH, for review edits. The backend enforces own
 ### Delete a review — removes a record
 
 ```bash
-curl --fail-with-body --silent --show-error --request DELETE "$API_BASE_URL/resenas/$REVIEW_ID" \
+curl --fail-with-body --silent --show-error --request DELETE "http://20.106.154.149/api/resenas/$REVIEW_ID" \
   --header 'Accept: application/json' \
   --header "Authorization: Bearer $TOKEN"
 ```
@@ -349,7 +340,7 @@ These commands require an authorized test administrator. They are not part of th
 ### Create a category
 
 ```bash
-curl --fail-with-body --silent --show-error --request POST "$API_BASE_URL/categorias" \
+curl --fail-with-body --silent --show-error --request POST "http://20.106.154.149/api/categorias" \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --header "Authorization: Bearer $ADMIN_TOKEN" \
@@ -361,7 +352,7 @@ curl --fail-with-body --silent --show-error --request POST "$API_BASE_URL/catego
 ### Create a hotel
 
 ```bash
-curl --fail-with-body --silent --show-error --request POST "$API_BASE_URL/hoteles" \
+curl --fail-with-body --silent --show-error --request POST "http://20.106.154.149/api/hoteles" \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --header "Authorization: Bearer $ADMIN_TOKEN" \
@@ -373,7 +364,7 @@ curl --fail-with-body --silent --show-error --request POST "$API_BASE_URL/hotele
 ### Create a package
 
 ```bash
-curl --fail-with-body --silent --show-error --request POST "$API_BASE_URL/paquetes" \
+curl --fail-with-body --silent --show-error --request POST "http://20.106.154.149/api/paquetes" \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --header "Authorization: Bearer $ADMIN_TOKEN" \
@@ -389,7 +380,7 @@ The frontend contract does not identify a currency and its admin form does not s
 ### Add an itinerary entry
 
 ```bash
-curl --fail-with-body --silent --show-error --request POST "$API_BASE_URL/paquetes/$PACKAGE_ID/itinerario" \
+curl --fail-with-body --silent --show-error --request POST "http://20.106.154.149/api/paquetes/$PACKAGE_ID/itinerario" \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --header "Authorization: Bearer $ADMIN_TOKEN" \
@@ -401,7 +392,7 @@ curl --fail-with-body --silent --show-error --request POST "$API_BASE_URL/paquet
 ### Increase available spots
 
 ```bash
-curl --fail-with-body --silent --show-error --request PATCH "$API_BASE_URL/paquetes/$PACKAGE_ID/cupos" \
+curl --fail-with-body --silent --show-error --request PATCH "http://20.106.154.149/api/paquetes/$PACKAGE_ID/cupos" \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --header "Authorization: Bearer $ADMIN_TOKEN" \
@@ -411,7 +402,7 @@ curl --fail-with-body --silent --show-error --request PATCH "$API_BASE_URL/paque
 ### Decrease available spots
 
 ```bash
-curl --fail-with-body --silent --show-error --request PATCH "$API_BASE_URL/paquetes/$PACKAGE_ID/cupos" \
+curl --fail-with-body --silent --show-error --request PATCH "http://20.106.154.149/api/paquetes/$PACKAGE_ID/cupos" \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --header "Authorization: Bearer $ADMIN_TOKEN" \
@@ -427,7 +418,7 @@ The current frontend payment modal is frontend-only, but live Swagger now verifi
 ### Read payments for your test reservation
 
 ```bash
-curl --fail-with-body --silent --show-error "$API_BASE_URL/reservas/$RESERVATION_ID/pagos" \
+curl --fail-with-body --silent --show-error "http://20.106.154.149/api/reservas/$RESERVATION_ID/pagos" \
   --header 'Accept: application/json' \
   --header "Authorization: Bearer $TOKEN"
 ```
@@ -439,7 +430,7 @@ Access: reservation owner or administrator. Expected success: HTTP 200.
 **Use a separate disposable reservation.** This requires the server to already have `ENABLE_DEMO_PAYMENTS=true`. The current flag value has not been verified; HTTP 403 can mean the feature is disabled. Do not enable it on a production server just to run this example.
 
 ```bash
-curl --fail-with-body --silent --show-error --request POST "$API_BASE_URL/reservas/$RESERVATION_ID/pagos" \
+curl --fail-with-body --silent --show-error --request POST "http://20.106.154.149/api/reservas/$RESERVATION_ID/pagos" \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --header "Authorization: Bearer $TOKEN" \
@@ -451,7 +442,7 @@ Swagger specifies HTTP 201 for a new payment and HTTP 200 when returning an exis
 ### List all payments — administrator only
 
 ```bash
-curl --fail-with-body --silent --show-error --get "$API_BASE_URL/pagos" \
+curl --fail-with-body --silent --show-error --get "http://20.106.154.149/api/pagos" \
   --header 'Accept: application/json' \
   --header "Authorization: Bearer $ADMIN_TOKEN" \
   --data-urlencode 'limit=12' \
@@ -464,7 +455,7 @@ curl --fail-with-body --silent --show-error --get "$API_BASE_URL/pagos" \
 
 ```bash
 curl --fail-with-body --silent --show-error --connect-timeout 10 --max-time 30 \
-  "$API_BASE_URL/docs.json" \
+  "http://20.106.154.149/api/docs.json" \
   --header 'Accept: application/json'
 ```
 
@@ -474,7 +465,7 @@ Use its `paths`, HTTP methods, request schemas and security definitions to check
 
 ```bash
 curl --fail-with-body --silent --show-error --include --connect-timeout 10 --max-time 30 \
-  "$API_BASE_URL/paquetes" \
+  "http://20.106.154.149/api/paquetes" \
   --header 'Accept: application/json'
 ```
 
@@ -495,12 +486,12 @@ Do not automatically retry writes after a timeout: a record may have been create
 ```bash
 # Expected HTTP 401. curl intentionally does not use --fail-with-body here.
 curl --silent --show-error --include --connect-timeout 5 --max-time 15 \
-  "$API_BASE_URL/auth/me" \
+  "http://20.106.154.149/api/auth/me" \
   --header 'Accept: application/json'
 
 # Expected HTTP 401.
 curl --silent --show-error --include --connect-timeout 5 --max-time 15 \
-  "$API_BASE_URL/reservas" \
+  "http://20.106.154.149/api/reservas" \
   --header 'Accept: application/json'
 ```
 
@@ -509,7 +500,7 @@ curl --silent --show-error --include --connect-timeout 5 --max-time 15 \
 ```bash
 # Expect HTTP 404 only if this valid numeric ID does not exist.
 curl --silent --show-error --include --connect-timeout 5 --max-time 15 \
-  "$API_BASE_URL/paquetes/2147483647" \
+  "http://20.106.154.149/api/paquetes/2147483647" \
   --header 'Accept: application/json'
 ```
 
@@ -518,21 +509,21 @@ curl --silent --show-error --include --connect-timeout 5 --max-time 15 \
 ### Read a category
 
 ```bash
-curl --fail-with-body --silent --show-error "$API_BASE_URL/categorias/$CATEGORY_ID" \
+curl --fail-with-body --silent --show-error "http://20.106.154.149/api/categorias/$CATEGORY_ID" \
   --header 'Accept: application/json'
 ```
 
 ### Read a hotel
 
 ```bash
-curl --fail-with-body --silent --show-error "$API_BASE_URL/hoteles/$HOTEL_ID" \
+curl --fail-with-body --silent --show-error "http://20.106.154.149/api/hoteles/$HOTEL_ID" \
   --header 'Accept: application/json'
 ```
 
 ### List roles — administrator only
 
 ```bash
-curl --fail-with-body --silent --show-error "$API_BASE_URL/roles" \
+curl --fail-with-body --silent --show-error "http://20.106.154.149/api/roles" \
   --header 'Accept: application/json' \
   --header "Authorization: Bearer $ADMIN_TOKEN"
 ```
@@ -542,7 +533,7 @@ There is no role creation or role-assignment endpoint in this Swagger document. 
 ### List users — administrator only
 
 ```bash
-curl --fail-with-body --silent --show-error --get "$API_BASE_URL/usuarios" \
+curl --fail-with-body --silent --show-error --get "http://20.106.154.149/api/usuarios" \
   --header 'Accept: application/json' \
   --header "Authorization: Bearer $ADMIN_TOKEN" \
   --data-urlencode 'limit=12' \
@@ -552,7 +543,7 @@ curl --fail-with-body --silent --show-error --get "$API_BASE_URL/usuarios" \
 ### Read your test user — owner or administrator
 
 ```bash
-curl --fail-with-body --silent --show-error "$API_BASE_URL/usuarios/$USER_ID" \
+curl --fail-with-body --silent --show-error "http://20.106.154.149/api/usuarios/$USER_ID" \
   --header 'Accept: application/json' \
   --header "Authorization: Bearer $TOKEN"
 ```
@@ -560,7 +551,7 @@ curl --fail-with-body --silent --show-error "$API_BASE_URL/usuarios/$USER_ID" \
 ### List reservations for your test user — owner or administrator
 
 ```bash
-curl --fail-with-body --silent --show-error --get "$API_BASE_URL/usuarios/$USER_ID/reservas" \
+curl --fail-with-body --silent --show-error --get "http://20.106.154.149/api/usuarios/$USER_ID/reservas" \
   --header 'Accept: application/json' \
   --header "Authorization: Bearer $TOKEN" \
   --data-urlencode 'limit=12' \
@@ -572,17 +563,17 @@ For owner-or-admin routes, an authorized administrator can substitute `ADMIN_TOK
 ### Paginate categories, hotels and reviews
 
 ```bash
-curl --fail-with-body --silent --show-error --get "$API_BASE_URL/categorias" \
+curl --fail-with-body --silent --show-error --get "http://20.106.154.149/api/categorias" \
   --header 'Accept: application/json' \
   --data-urlencode 'limit=12' \
   --data-urlencode 'offset=0'
 
-curl --fail-with-body --silent --show-error --get "$API_BASE_URL/hoteles" \
+curl --fail-with-body --silent --show-error --get "http://20.106.154.149/api/hoteles" \
   --header 'Accept: application/json' \
   --data-urlencode 'limit=12' \
   --data-urlencode 'offset=0'
 
-curl --fail-with-body --silent --show-error --get "$API_BASE_URL/paquetes/$PACKAGE_ID/resenas" \
+curl --fail-with-body --silent --show-error --get "http://20.106.154.149/api/paquetes/$PACKAGE_ID/resenas" \
   --header 'Accept: application/json' \
   --data-urlencode 'limit=12' \
   --data-urlencode 'offset=0'
@@ -595,7 +586,7 @@ curl --fail-with-body --silent --show-error --get "$API_BASE_URL/paquetes/$PACKA
 ### Update a category
 
 ```bash
-curl --fail-with-body --silent --show-error --request PUT "$API_BASE_URL/categorias/$CATEGORY_ID" \
+curl --fail-with-body --silent --show-error --request PUT "http://20.106.154.149/api/categorias/$CATEGORY_ID" \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --header "Authorization: Bearer $ADMIN_TOKEN" \
@@ -605,7 +596,7 @@ curl --fail-with-body --silent --show-error --request PUT "$API_BASE_URL/categor
 ### Update a hotel
 
 ```bash
-curl --fail-with-body --silent --show-error --request PUT "$API_BASE_URL/hoteles/$HOTEL_ID" \
+curl --fail-with-body --silent --show-error --request PUT "http://20.106.154.149/api/hoteles/$HOTEL_ID" \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --header "Authorization: Bearer $ADMIN_TOKEN" \
@@ -617,7 +608,7 @@ Hotel capacity is informational; it does not calculate nightly occupancy.
 ### Update a package
 
 ```bash
-curl --fail-with-body --silent --show-error --request PUT "$API_BASE_URL/paquetes/$PACKAGE_ID" \
+curl --fail-with-body --silent --show-error --request PUT "http://20.106.154.149/api/paquetes/$PACKAGE_ID" \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --header "Authorization: Bearer $ADMIN_TOKEN" \
@@ -633,7 +624,7 @@ Supply all required package fields, not a partial PATCH payload. Swagger specifi
 Copy the `id_itinerario` from your test itinerary creation response into `ITINERARY_ID`.
 
 ```bash
-curl --fail-with-body --silent --show-error --request PUT "$API_BASE_URL/itinerarios/$ITINERARY_ID" \
+curl --fail-with-body --silent --show-error --request PUT "http://20.106.154.149/api/itinerarios/$ITINERARY_ID" \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --header "Authorization: Bearer $ADMIN_TOKEN" \
@@ -645,7 +636,7 @@ Multiple activities may share a day number. Expected success for each PUT above:
 ### Delete an itinerary entry
 
 ```bash
-curl --fail-with-body --silent --show-error --include --request DELETE "$API_BASE_URL/itinerarios/$ITINERARY_ID" \
+curl --fail-with-body --silent --show-error --include --request DELETE "http://20.106.154.149/api/itinerarios/$ITINERARY_ID" \
   --header 'Accept: application/json' \
   --header "Authorization: Bearer $ADMIN_TOKEN"
 ```
@@ -655,7 +646,7 @@ curl --fail-with-body --silent --show-error --include --request DELETE "$API_BAS
 **Destructive:** Swagger documents cascading deletion of itineraries and reviews. A package with reservations is not eligible for deletion. Do not assume cancelling a reservation removes its historical details.
 
 ```bash
-curl --fail-with-body --silent --show-error --include --request DELETE "$API_BASE_URL/paquetes/$PACKAGE_ID" \
+curl --fail-with-body --silent --show-error --include --request DELETE "http://20.106.154.149/api/paquetes/$PACKAGE_ID" \
   --header 'Accept: application/json' \
   --header "Authorization: Bearer $ADMIN_TOKEN"
 ```
@@ -663,7 +654,7 @@ curl --fail-with-body --silent --show-error --include --request DELETE "$API_BAS
 ### Delete a hotel
 
 ```bash
-curl --fail-with-body --silent --show-error --include --request DELETE "$API_BASE_URL/hoteles/$HOTEL_ID" \
+curl --fail-with-body --silent --show-error --include --request DELETE "http://20.106.154.149/api/hoteles/$HOTEL_ID" \
   --header 'Accept: application/json' \
   --header "Authorization: Bearer $ADMIN_TOKEN"
 ```
@@ -671,7 +662,7 @@ curl --fail-with-body --silent --show-error --include --request DELETE "$API_BAS
 ### Delete a category
 
 ```bash
-curl --fail-with-body --silent --show-error --include --request DELETE "$API_BASE_URL/categorias/$CATEGORY_ID" \
+curl --fail-with-body --silent --show-error --include --request DELETE "http://20.106.154.149/api/categorias/$CATEGORY_ID" \
   --header 'Accept: application/json' \
   --header "Authorization: Bearer $ADMIN_TOKEN"
 ```
