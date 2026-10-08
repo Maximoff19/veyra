@@ -20,7 +20,7 @@ export default function Reservations() {
   return <div className="page-container reservations-page">
     <div className="page-heading reservations-heading">
       <div><span className="eyebrow">TU VIAJE, BIEN ORGANIZADO</span><h1>Mis reservas.</h1><p>Tus viajes, sus detalles y el siguiente paso. Todo en un solo lugar.</p></div>
-      <ActionLink to="/paquetes" className="button-white">Explorar paquetes</ActionLink>
+      <ActionLink to="/paquetes" className="button-white">PROFE</ActionLink>
     </div>
     {!session ? <SignInNotice /> : <ReservationList key={session.user.id} token={session.token} />}
   </div>;
